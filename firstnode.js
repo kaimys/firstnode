@@ -38,158 +38,85 @@ MimeMap.prototype.lookup = function(filename) {
 var mimeMap = new MimeMap();
 
 /**
- * Folder Class
+ * Page Class
  */
 
-function Folder(name) {
-    console.log('new Folder(' + name + ')');
+function Page(name) {
+    console.log('new Page(' + name + ')');
     this.name = name;
-    this.mounts = {};
+    this.children = [];
+    this.parent = null;
 }
 
-Folder.prototype.doRequest = function(req, res, pathName) {
-    console.log('Folder.doRequest(' + pathName +')');
-    var dirname = pathName.split('/')[1];
-    if(dirname in this.mounts) {
-        pathName = pathName.substring(dirname.length + 1);
-        this.mounts[dirname].doRequest(req, res, pathName);
-    } else if(pathName == '/') {
-        this.showIndex(req, res);
-    } else {
-        return false;
+Page.prototype.addChild = function(child) {
+    if(!(child instanceof Page))
+        throw new Error("Not a page!");
+    if(this.containsChild(child.name)) 
+        throw Error("Page already contains a object of that name!");
+    this.children.push(child);
+    child.parent = this;
+};
+
+Page.prototype.getChild = function(name) {
+    for(var i = 0; i < this.children.length; i++) {
+        if(this.children[i].name == name)
+            return this.children[i];
     }
-    return true;
+    return null;
 };
 
-Folder.prototype.showIndex = function(req, res) {
-    console.log('Folder.showIndex');
-    this.writeHeader(req, res);
-    for(var mount in this.mounts) {
-        this.writeLine(req, res, mount);
-    }
-    this.writeFooter(req, res);
-    res.end();
-};
-
-Folder.prototype.writeHeader = function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<html><head><title>Contents of folder ' +  this.name + '</title></head>');
-    res.write('<body><h1>Contents of folder ' +  this.name + '</h1><ul>');
-};
-
-Folder.prototype.writeLine = function(req, res, line) {
-    res.write('<li><a href="' + line + '">' + line + '</a></li>');
-};
-
-Folder.prototype.writeFooter = function(req, res) {
-    res.write('</ul></body></html>');
-};
-
-Folder.prototype.mount = function(folder) {
-    this.mounts[folder.name] = folder;
+Page.prototype.containsChild = function(name) {
+    return this.getChild(name) != null;
 };
 
 /**
- * DirFolder Class
+ * Template Class
  */
 
-function DirFolder(name, directory) {
-    console.log('new DirFolder(' + name + ', ' + directory + ')');
-    Folder.call(this, name);
-    this.directory = directory;
+function Template() {
+    console.log('new Template()');
 }
 
-DirFolder.prototype = new Folder('');
-DirFolder.prototype.constructor = DirFolder;
-
-DirFolder.prototype.doRequest = function(req, res, pathName) {
-    console.log('DirFolder.doRequest(' + pathName +')');
-    if (Folder.prototype.doRequest.call(this, req, res, pathName))
-        return true;
-    var filename = this.directory + pathName;
-    fs.readFile(filename, function (err, data) {
-        if (err && err.code == 'ENOENT') {
-            res.writeHead(404, {'Content-Type': 'text/plain'});
-            res.end('Not found\n');           
-        } else if (err) {
-            throw new Error(util.inspect(err));
-        } else {
-            res.writeHead(200, {'Content-Type': mimeMap.lookup(filename)});
-            res.end(data);
-        }
+Template.prototype.render = function(req, res, obj) {
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.write('<html><head><title>' + obj.name + '</title></head><body><h1>' + obj.name + '</h1><ul>');
+    obj.children.forEach(function(child) {
+        res.write('<li><a href="' + child.name + '/">' + child.name + '</a></li>');
     });
-    return true;
-};
-
-DirFolder.prototype.showIndex = function(req, res) {
-    console.log('DirFolder.showIndex');
-    try {
-        var dirFolder = this;
-        var filename = this.directory + '/index.html';
-        fs.stat(filename, function(err, stat) {
-            if (!err && stat.isFile()) {
-                fs.readFile(filename, function (err, data) {
-                    if(err) throw err;
-                    res.writeHead(200, {'Content-Type': mimeMap.lookup(filename)});
-                    res.end(data);
-                });
-            } else {
-                if (err && err.errno === process.ENOENT)
-                    throw new Error(util.inspect(err));
-                fs.readdir(dirFolder.directory, function(err, files) {
-                    if (err)
-                        throw new Error(util.inspect(err));
-                    dirFolder.writeHeader(req, res);
-                    for (var file in files) {
-                        dirFolder.writeLine(req, res, files[file]);
-                    }
-                    dirFolder.writeFooter(req, res);
-                    res.end();
-                });
-            }
-        });
-    } catch(ext) {
-        console.log(ext);
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end('Internal error: ' + ext + '\n');
-    }
+    res.end('</ul></body></html>');
 };
 
 /* Application setup */
 
-var action = new Folder('action');
+var root = new Page('root');
+var tv = new Page('tv');
+tv.addChild(new Page('Anna_und_die_Liebe'));
+tv.addChild(new Page('Die_Harald_Schmidt_Show'));
+tv.addChild(new Page('Sat.1_Nachrichten'));
+root.addChild(tv);
+root.addChild(new Page('personen'));
+root.addChild(new Page('service'));
+root.addChild(new Page('video'));
 
-action.doRequest = function(req, res, pathName) {
-    console.log('action.doRequest(' + pathName +')');
-    try {
-        if(pathName.startsWith('/hello')) {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end('Hello World\n');
-        } else if(pathName.startsWith('/bye')) {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
-            res.end('Bye bye\n');
-        } else {
-            return false;
-        }
-    } catch(ext) {
-        console.log(util.inspect(ext));
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end('Internal error\n');
-    }
-    return true;
-};
-
-var root = new DirFolder('root', 'htdocs');
-root.mount(action);
+var defaultTemplate = new Template();
 
 /* Start server */
 
 http.createServer(function (req, res) {
-    var pathName = url.parse(req.url).pathname;
-    if (!root.doRequest(req, res, pathName)) {
+    var path = req.url.split('/');
+    path.shift();
+    var page = root;
+    path.forEach(function(pathElement) {
+        if(page != null && pathElement != '') {
+            page = page.getChild(pathElement);
+        }
+    });
+    if (page == null) {
         res.writeHead(404, {'Content-Type': 'text/plain'});
         res.end('Not found\n');
+    } else {
+        defaultTemplate.render(req, res, page);      
     }
-    console.log(pathName + ' - ' + res.statusCode);
+    console.log(req.url + ' - ' + res.statusCode);
 }).listen(8080, "0.0.0.0");
 console.log('Server running at http://localhost:8080/');

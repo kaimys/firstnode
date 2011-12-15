@@ -6,6 +6,7 @@ var http = require('http');
 var url = require('url');
 var fs = require('fs');
 var util = require('util');
+var ejs = require('ejs');
 
 String.prototype.startsWith = function(str) {
     return this.substring(0, str.length) == str;
@@ -70,25 +71,58 @@ Page.prototype.containsChild = function(name) {
 };
 
 /**
- * Template Class
+ * Renderer Class
  */
 
-function Template() {
-    console.log('new Template()');
+function Renderer(pageLayout) {
+    console.log('new Renderer()');
+    this.templates = [];
+    this.pageLayout = this.loadTemplate(pageLayout);
 }
 
-Template.prototype.render = function(req, res, obj) {
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.write('<html><head><title>' + obj.name + '</title></head><body><h1>' + obj.name + '</h1><ul>');
-    obj.children.forEach(function(child) {
-        res.write('<li><a href="' + child.name + '/">' + child.name + '</a></li>');
+Renderer.prototype.loadTemplate = function(template) {
+    return fs.readFileSync(__dirname + '/htdocs/' + template, 'utf8');
+};
+
+
+Renderer.prototype.addTemplate = function(template, constructor, context) {
+    this.templates.unshift({
+        'template'   : this.loadTemplate(template),
+        'constructor': constructor,
+        'context'    : context
     });
-    res.end('</ul></body></html>');
+};
+
+Renderer.prototype.render = function(req, res, obj, context) {
+    console.log('render(req, res, ' + obj.name + ', ' + context + ')');
+    for(var i = 0; i < this.templates.length; i++) {
+        var tpl = this.templates[i];
+        if(obj instanceof tpl.constructor && context == tpl.context) {
+            return ejs.render(tpl.template, {
+                'req'       : req,
+                'res'       : res,
+                'obj'       : obj,
+                'context'   : context,
+                'renderer': this
+            });
+        }
+    }
+};
+
+Renderer.prototype.renderPage = function(req, res, obj) {
+    console.log('renderPage(req, res, ' + obj.name + ')');
+    res.writeHead(200, {'Content-Type': 'text/html'});
+    res.end(ejs.render(this.pageLayout, {
+        'req'    : req,
+        'res'    : res,
+        'obj'    : obj,
+        'renderer': this
+    }));
 };
 
 /* Application setup */
 
-var root = new Page('root');
+var root = new Page('Index');
 var tv = new Page('tv');
 tv.addChild(new Page('Anna_und_die_Liebe'));
 tv.addChild(new Page('Die_Harald_Schmidt_Show'));
@@ -98,7 +132,9 @@ root.addChild(new Page('personen'));
 root.addChild(new Page('service'));
 root.addChild(new Page('video'));
 
-var defaultTemplate = new Template();
+var renderer = new Renderer('pageLayout.ejs');
+renderer.addTemplate('Page.ejs', Page, 'page');
+renderer.addTemplate('PageListItem.ejs', Page, 'list-item');
 
 /* Start server */
 
@@ -115,7 +151,7 @@ http.createServer(function (req, res) {
         res.writeHead(404, {'Content-Type': 'text/plain'});
         res.end('Not found\n');
     } else {
-        defaultTemplate.render(req, res, page);      
+        renderer.renderPage(req, res, page);
     }
     console.log(req.url + ' - ' + res.statusCode);
 }).listen(8080, "0.0.0.0");

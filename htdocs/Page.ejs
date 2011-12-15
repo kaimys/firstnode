@@ -1,0 +1,6 @@
+<h1><%- obj.name %></h1>
+<ul>
+<% obj.children.forEach(function(child) { %>
+  <%- renderer.render(req, res, child, 'list-item')  %>
+<% }) %>
+</ul>

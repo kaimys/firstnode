@@ -7,6 +7,7 @@ var url = require('url');
 var fs = require('fs');
 var util = require('util');
 var ejs = require('ejs');
+var paperboy = require('./paperboy');
 
 String.prototype.startsWith = function(str) {
     return this.substring(0, str.length) == str;
@@ -154,11 +155,19 @@ http.createServer(function (req, res) {
         }
     });
     if (page == null) {
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.end('Not found\n');
+        paperboy
+            .deliver(__dirname + '/htdocs', req, res)
+            .after(function(statCode) {
+                console.log(req.url + ' - ' + res.statusCode);
+            })
+            .otherwise(function(err) {
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end('Not found\n');
+                console.log(req.url + ' - ' + res.statusCode);
+            });
     } else {
         renderer.renderPage(req, res, page);
+        console.log(req.url + ' - ' + res.statusCode);
     }
-    console.log(req.url + ' - ' + res.statusCode);
 }).listen(8080, "0.0.0.0");
 console.log('Server running at http://localhost:8080/');

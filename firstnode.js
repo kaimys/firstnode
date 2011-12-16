@@ -77,19 +77,21 @@ Page.prototype.containsChild = function(name) {
 function Renderer(pageLayout) {
     console.log('new Renderer()');
     this.templates = [];
-    this.pageLayout = this.loadTemplate(pageLayout);
+    this.pageLayoutFile = this.loadTemplate(pageLayout);
+    this.pageLayout = pageLayout;
 }
 
 Renderer.prototype.loadTemplate = function(template) {
-    return fs.readFileSync(__dirname + '/htdocs/' + template, 'utf8');
+    return fs.readFileSync(__dirname + '/htdocs/templates/' + template, 'utf8');
 };
 
 
 Renderer.prototype.addTemplate = function(template, constructor, context) {
     this.templates.unshift({
-        'template'   : this.loadTemplate(template),
-        'constructor': constructor,
-        'context'    : context
+        'templateFile': this.loadTemplate(template),
+        'template'    : template,
+        'constructor' : constructor,
+        'context'     : context
     });
 };
 
@@ -98,12 +100,14 @@ Renderer.prototype.render = function(req, res, obj, context) {
     for(var i = 0; i < this.templates.length; i++) {
         var tpl = this.templates[i];
         if(obj instanceof tpl.constructor && context == tpl.context) {
-            return ejs.render(tpl.template, {
+            return ejs.render(tpl.templateFile, {
+                'cache'     : true,
+                'filename'  : tpl.template,
                 'req'       : req,
                 'res'       : res,
                 'obj'       : obj,
                 'context'   : context,
-                'renderer': this
+                'renderer'  : this
             });
         }
     }
@@ -112,10 +116,12 @@ Renderer.prototype.render = function(req, res, obj, context) {
 Renderer.prototype.renderPage = function(req, res, obj) {
     console.log('renderPage(req, res, ' + obj.name + ')');
     res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(ejs.render(this.pageLayout, {
-        'req'    : req,
-        'res'    : res,
-        'obj'    : obj,
+    res.end(ejs.render(this.pageLayoutFile, {
+        'cache'   : true,
+        'filename': this.pageLayout,
+        'req'     : req,
+        'res'     : res,
+        'obj'     : obj,
         'renderer': this
     }));
 };

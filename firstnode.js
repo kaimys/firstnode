@@ -57,6 +57,7 @@ Page.prototype.addChild = function(child) {
         throw Error("Page already contains a object of that name!");
     this.children.push(child);
     child.parent = this;
+    return this;
 };
 
 Page.prototype.getChild = function(name) {
@@ -129,15 +130,15 @@ Renderer.prototype.renderPage = function(req, res, obj) {
 
 /* Application setup */
 
-var root = new Page('Index');
-var tv = new Page('tv');
-tv.addChild(new Page('Anna_und_die_Liebe'));
-tv.addChild(new Page('Die_Harald_Schmidt_Show'));
-tv.addChild(new Page('Sat.1_Nachrichten'));
-root.addChild(tv);
-root.addChild(new Page('personen'));
-root.addChild(new Page('service'));
-root.addChild(new Page('video'));
+var tv = new Page('tv')
+    .addChild(new Page('Anna_und_die_Liebe'))
+    .addChild(new Page('Die_Harald_Schmidt_Show'))
+    .addChild(new Page('Sat.1_Nachrichten'));
+var root = new Page('Index')
+    .addChild(tv)
+    .addChild(new Page('personen'))
+    .addChild(new Page('service'))
+    .addChild(new Page('video'));
 
 var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');

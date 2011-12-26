@@ -21,6 +21,8 @@ FirstnodeClient.main = function main() {
 
   // Step 2. Set the content property on your primary controller.
   // This will make your app come alive!
+  
+  FirstnodeClient.treeController.set('content', FirstnodeClient.Content.create());
 
   // TODO: Set the content property on your primary controller
   // ex: FirstnodeClient.contactsController.set('content',FirstnodeClient.contacts);

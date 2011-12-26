@@ -21,18 +21,23 @@ FirstnodeClient.mainPage = SC.Page.design({
                   dividerThickness: 3,
                   defaultThickness: 300,
                   
-                  topLeftView: SC.SourceListView.design({
-                      contentValueKey: 'name',
-                      contentBinding: 'FirstnodeClient.contactsController.content',
-                      selectionBinding: 'FirstnodeClient.contactsController.selection'
+                  topLeftView: SC.ScrollView.design(SC.Border, {  // TODO Deprecated
+                      borderStyle: SC.BORDER_GRAY,
+                      hasHorizontalScroller: YES,
+                      
+                      contentView: SC.SourceListView.design({
+                          contentValueKey: 'title',
+                          contentBinding: "FirstnodeClient.treeController.arrangedObjects",
+                          selectionBinding: 'FirstnodeClient.treeController.selection'
+                      })
                   }),
-                  
+                      
                   bottomRightView: SC.View.design({
                       childViews: 'usageHint contactDetails'.w(),
                       
                       usageHint: SC.View.design({
                           classNames: 'app-usage-hint',
-                          isVisibleBinding: SC.Binding.not('FirstnodeClient.contactsController.hasSelection'),
+                          isVisibleBinding: SC.Binding.not('FirstnodeClient.treeController.hasSelection'),
                        
                           childViews: [SC.LabelView.design({
                               layout: { width: 300, height: 22, centerX: 0, centerY: 0 },
@@ -48,17 +53,17 @@ FirstnodeClient.mainPage = SC.Page.design({
                           
                           nameLabel: SC.LabelView.design({
                               layout: { width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.contactController.name')
+                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.title')
                           }),
                           
                           phoneLabel: SC.LabelView.design({
                               layout: { top: 40, width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.contactController.phone')
+                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.count')
                           }),
                          
                           addressLabel: SC.LabelView.design({
                               layout: { top: 80, width: 500, height: 500 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.contactController.address')
+                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.treeItemIsExpanded')
                           })
                       })
                   })

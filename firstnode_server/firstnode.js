@@ -144,7 +144,7 @@ var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');
 renderer.addTemplate('PageListItem.ejs', Page, 'list-item');
 
-/* Start server */
+/* Start publish server */
 
 http.createServer(function (req, res) {
     var path = req.url.split('/');
@@ -171,4 +171,28 @@ http.createServer(function (req, res) {
         console.log(req.url + ' - ' + res.statusCode);
     }
 }).listen(8080, "0.0.0.0");
-console.log('Server running at http://localhost:8080/');
+console.log('Server publish running at http://localhost:8080/');
+
+/* Start admin server */
+
+http.createServer(function (req, res) {
+    if(req.url == '/') {
+        res.writeHead(302, {
+            'Content-Type': 'text/plain',
+            'Location': '/static/firstnode_client/en/1/index.html'
+        });
+        res.end('Moved Temporarily\n');
+    } else {
+        paperboy
+            .deliver('/Users/kai/workspace/firstnode/firstnode_client/tmp/build', req, res)
+            .after(function(statCode) {
+                console.log(req.url + ' - ' + res.statusCode);
+            })
+            .otherwise(function(err) {
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end('Not found\n');
+                console.log(req.url + ' - ' + res.statusCode);
+            });
+    }
+}).listen(8081, "0.0.0.0");
+console.log('Server admin running at http://localhost:8081/');

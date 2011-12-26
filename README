@@ -4,3 +4,9 @@ Copyright: @2011 My Company, Inc.
 ==========================================================================
 
 TODO: Describe Your Project
+
+Deployment
+==========
+sc-build --clean --include-required --build=1
+mv tmp/build/static ../firstnode/htdocs/
+

@@ -8,5 +8,6 @@ TODO: Describe Your Project
 Deployment
 ==========
 sc-build --clean --include-required --build=1
-mv tmp/build/static ../firstnode/htdocs/
+
+http://wiki.sproutcore.com/w/page/12412868/BuildTools-Reference%20sc-build
 

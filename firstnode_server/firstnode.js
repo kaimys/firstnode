@@ -181,10 +181,10 @@ http.createServer(function (req, res) {
             'Content-Type': 'text/plain',
             'Location': '/static/firstnode_client/en/1/index.html'
         });
-        res.end('Moved Temporarily\n');
+        res.end('Moved temporarily\n');
     } else {
         paperboy
-            .deliver('/Users/kai/workspace/firstnode/firstnode_client/tmp/build', req, res)
+            .deliver(__dirname + '/htadmin', req, res)
             .after(function(statCode) {
                 console.log(req.url + ' - ' + res.statusCode);
             })

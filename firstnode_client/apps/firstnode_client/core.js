@@ -27,18 +27,18 @@ FirstnodeClient = SC.Application.create(
   Content: SC.Object.extend({
       treeItemIsExpanded: YES,
       title: "Root", 
-      count: 10,
+      pageId: 1,
     
       treeItemChildren: function() {
-          var idx, count = this.get('count'),
-              ret = [];
-      
-          for(idx=0; idx<count; idx++) {
+          var ret = [];
+          var page = FirstnodeClient.store.find(FirstnodeClient.Page, this.get('pageId'));
+          page.get('children').forEach(function (child) {
               ret.push(FirstnodeClient.Content.create({
-                  title: " %@.%@".fmt(this.get('title'), idx),
+                  title: child.get('name'),
+                  pageId: child.get('id'),
                   treeItemIsExpanded: NO
               }));
-          }
+          });
       
           return ret ;
     }.property().cacheable()

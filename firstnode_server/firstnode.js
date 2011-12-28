@@ -130,15 +130,30 @@ Renderer.prototype.renderPage = function(req, res, obj) {
 
 /* Application setup */
 
-var tv = new Page('tv')
-    .addChild(new Page('Anna_und_die_Liebe'))
-    .addChild(new Page('Die_Harald_Schmidt_Show'))
-    .addChild(new Page('Sat.1_Nachrichten'));
-var root = new Page('Index')
-    .addChild(tv)
-    .addChild(new Page('personen'))
-    .addChild(new Page('service'))
-    .addChild(new Page('video'));
+var fixture = {
+	name: 'Root',
+	children: [{
+    	name: 'tv',
+    	children: [
+    	    { name: 'Anna_und_die_Liebe', children: [] },
+		    { name: 'Die_Harald_Schmidt_Show', children: [] }, 
+		    { name: 'Sat.1_Nachrichten', children: [] }
+		]},
+	    { name: 'personen', children: [] },
+	    { name: 'service', children: [] },
+	    { name: 'video', children: [] }
+    ]
+};
+
+function readStructure(struc) {
+	var page = new Page(struc.name);
+	struc.children.forEach(function(child) {
+		page.addChild(readStructure(child));
+	});
+	return page;
+}
+
+var root = readStructure(fixture);
 
 var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');

@@ -13,19 +13,19 @@
 //
 FirstnodeClient.main = function main() {
 
-  // Step 1: Instantiate Your Views
-  // The default code here will make the mainPane for your application visible
-  // on screen.  If you app gets any level of complexity, you will probably 
-  // create multiple pages and panes.  
-  FirstnodeClient.getPath('mainPage.mainPane').append() ;
+    // Step 1: Instantiate Your Views
+    // The default code here will make the mainPane for your application visible
+	// on screen.  If you app gets any level of complexity, you will probably 
+	// create multiple pages and panes.  
+	FirstnodeClient.getPath('mainPage.mainPane').append() ;
 
-  // Step 2. Set the content property on your primary controller.
-  // This will make your app come alive!
+	// Step 2. Set the content property on your primary controller.
+	// This will make your app come alive!
   
-  FirstnodeClient.treeController.set('content', FirstnodeClient.Content.create());
-
-  // TODO: Set the content property on your primary controller
-  // ex: FirstnodeClient.contactsController.set('content',FirstnodeClient.contacts);
+	FirstnodeClient.treeController.set('content', FirstnodeClient.Content.create());
+  
+	// TODO: Set the content property on your primary controller
+	// ex: FirstnodeClient.contactsController.set('content',FirstnodeClient.contacts);
 
 } ;
 

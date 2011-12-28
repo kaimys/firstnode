@@ -43,25 +43,25 @@ FirstnodeClient.mainPage = SC.Page.design({
                               layout: { width: 300, height: 22, centerX: 0, centerY: 0 },
                               tagName: 'h1',
                               textAlign: SC.ALIGN_CENTER,
-                              value: "Select a contact"
+                              value: "Select a page"
                           })]
                       }),
                       
                       contactDetails: SC.View.design({
                           layout: { top: 50, left: 50, bottom: 50, right: 50 },
-                          childViews: 'nameLabel phoneLabel addressLabel'.w(),
+                          childViews: 'idLabel titleLabel expandedLabel'.w(),
                           
-                          nameLabel: SC.LabelView.design({
+                          idLabel: SC.LabelView.design({
                               layout: { width: 500, height: 18 },
+                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.pageId')
+                          }),
+                          
+                          titleLabel: SC.LabelView.design({
+                              layout: { top: 40, width: 500, height: 18 },
                               valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.title')
                           }),
-                          
-                          phoneLabel: SC.LabelView.design({
-                              layout: { top: 40, width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.count')
-                          }),
                          
-                          addressLabel: SC.LabelView.design({
+                          expandedLabel: SC.LabelView.design({
                               layout: { top: 80, width: 500, height: 500 },
                               valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.treeItemIsExpanded')
                           })

@@ -9,10 +9,4 @@ FirstnodeClient.Page.FIXTURES = [
     { guid: 6, name: "Anna_und_die_Liebe", parent: 2, children: [] },
     { guid: 7, name: "Die_Harald_Schmidt_Show", parent: 2, children: [] },
     { guid: 8, name: "Sat.1_Nachrichten", parent: 2, children: [] },
-    { guid: 9, name: "Root", parent: 0, children: [] },
-    { guid: 10, name: "Root", parent: 0, children: [] },
-    { guid: 11, name: "Root", parent: 0, children: [] },
-    { guid: 12, name: "Root", parent: 0, children: [] },
-    { guid: 13, name: "Root", parent: 0, children: [] },
-    { guid: 14, name: "Root", parent: 0, children: [] },
 ];

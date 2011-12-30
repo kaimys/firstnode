@@ -21,14 +21,11 @@ FirstnodeClient = SC.Application.create(
   // connect to a backend server.  The default setup below connects the store
   // to any fixtures you define.
   store: SC.Store.create().from(SC.Record.fixtures),
+  //store: SC.Store.create().from('FirstnodeClient.PageDataSource'),
   
   // TODO: Add global constants or singleton objects needed by your app here.
   
   Content: SC.Object.extend({
-      treeItemIsExpanded: YES,
-      title: "Root", 
-      pageId: 1,
-    
       treeItemChildren: function() {
           var ret = [];
           var page = FirstnodeClient.store.find(FirstnodeClient.Page, this.get('pageId'));

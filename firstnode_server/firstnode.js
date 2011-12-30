@@ -130,7 +130,18 @@ Renderer.prototype.renderPage = function(req, res, obj) {
 
 /* Application setup */
 
-var fixture = {
+var fixtures = [
+    { guid: 1, name: "Root", parent: 0, children: [2, 3, 4, 5] },
+    { guid: 2, name: "tv", parent: 1, children: [6, 7, 8] },
+    { guid: 3, name: "personen", parent: 1, children: [] },
+    { guid: 4, name: "service", parent: 1, children: [] },
+    { guid: 5, name: "video", parent: 1, children: [] },
+    { guid: 6, name: "Anna_und_die_Liebe", parent: 2, children: [] },
+    { guid: 7, name: "Die_Harald_Schmidt_Show", parent: 2, children: [] },
+    { guid: 8, name: "Sat.1_Nachrichten", parent: 2, children: [] },
+];
+
+var tree = {
 	name: 'Root',
 	children: [{
     	name: 'tv',
@@ -153,7 +164,7 @@ function readStructure(struc) {
 	return page;
 }
 
-var root = readStructure(fixture);
+var root = readStructure(tree);
 
 var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');
@@ -186,7 +197,7 @@ http.createServer(function (req, res) {
         console.log(req.url + ' - ' + res.statusCode);
     }
 }).listen(8080, "0.0.0.0");
-console.log('Server publish running at http://localhost:8080/');
+console.log('Publish server running at http://localhost:8080/');
 
 /* Start admin server */
 
@@ -197,6 +208,26 @@ http.createServer(function (req, res) {
             'Location': '/static/firstnode_client/en/1/index.html'
         });
         res.end('Moved temporarily\n');
+    } else if(req.url.startsWith('/services/page/')) {
+        if(req.url.startsWith('/services/page/list')) {
+            res.writeHead(200, {'Content-Type': 'application/json'});
+            res.end(JSON.stringify(fixtures));
+        } else if(req.url.startsWith('/services/page/id/')) {
+            var id = req.url.substr('/services/page/id/'.length);
+            var page = null;
+            fixtures.forEach(function (fix) {
+                if(fix.guid == id)
+                    page = fix;
+            });
+            if(page != null) {
+                res.writeHead(200, {'Content-Type': 'application/json'});
+                res.end(JSON.stringify({content: page}));
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end('Not found\n');
+            }
+        }
+        console.log(req.method + ' - ' + req.url + ' - ' + res.statusCode);
     } else {
         paperboy
             .deliver(__dirname + '/htadmin', req, res)
@@ -210,4 +241,4 @@ http.createServer(function (req, res) {
             });
     }
 }).listen(8081, "0.0.0.0");
-console.log('Server admin running at http://localhost:8081/');
+console.log('Admin server running at http://localhost:8081/');

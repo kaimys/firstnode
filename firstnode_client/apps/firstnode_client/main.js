@@ -23,7 +23,9 @@ FirstnodeClient.main = function main() {
 	// This will make your app come alive  
 
 	//FirstnodeClient.treeController.populate();
-	FirstnodeClient.treeController.set('content', FirstnodeClient.store.find(FirstnodeClient.Page, 1));
+	var root = FirstnodeClient.store.find(FirstnodeClient.Page, 1);
+	root.treeItemIsExpanded = YES;
+	FirstnodeClient.treeController.set('content', root);
 	
 	// TODO: Set the content property on your primary controller
 	// ex: FirstnodeClient.contactsController.set('content',FirstnodeClient.contacts);

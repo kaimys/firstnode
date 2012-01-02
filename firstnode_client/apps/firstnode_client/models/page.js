@@ -16,7 +16,7 @@ FirstnodeClient.Page = SC.Record.extend({
         return this.get('name');
     }.property(),
     
-    treeItemIsExpanded: YES,
+    treeItemIsExpanded: NO,
     
     treeItemChildren: function(){
         return this.get("children");

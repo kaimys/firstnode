@@ -50,10 +50,11 @@ FirstnodeClient.mainPage = SC.Page.design({
                       contactDetails: SC.View.design({
                           layout: { top: 50, left: 50, bottom: 50, right: 50 },
                           childViews: 'idLabel titleLabel expandedLabel'.w(),
+                          isVisibleBinding: SC.Binding.bool('FirstnodeClient.treeController.hasSelection'),
                           
                           idLabel: SC.LabelView.design({
                               layout: { width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.pageId')
+                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.id')
                           }),
                           
                           titleLabel: SC.LabelView.design({

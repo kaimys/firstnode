@@ -4,6 +4,8 @@
 // ==========================================================================
 /*globals FirstnodeClient */
 
+FirstnodeClient.ALL_PAGES_QUERY = SC.Query.local(FirstnodeClient.Page);
+
 /** @class
 
   (Document Your Data Source Here)
@@ -12,10 +14,6 @@
 */
 FirstnodeClient.PageDataSource = SC.DataSource.extend(
 /** @scope FirstnodeClient.PageDataSource.prototype */ {
-
-    // ..........................................................
-    // QUERY SUPPORT
-    // 
 
     fetch: function(store, query) {
         SC.Request
@@ -42,7 +40,7 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
   
     retrieveRecord: function(store, storeKey) {
         SC.Request
-            .getUrl('/services/page/id/' + storeKey)
+            .getUrl('/services/page/id/' + store.idFor(storeKey))
             .header({'Accept': 'application/json'})
             .json()
             .notify(this, 'didRetrieveRecord', store, storeKey)

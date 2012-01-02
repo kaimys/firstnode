@@ -134,12 +134,29 @@ var fixtures = [
     { guid: 1, name: "Root", parent: 0, children: [2, 3, 4, 5] },
     { guid: 2, name: "tv", parent: 1, children: [6, 7, 8] },
     { guid: 3, name: "personen", parent: 1, children: [] },
-    { guid: 4, name: "service", parent: 1, children: [] },
+    { guid: 4, name: "service", parent: 1, children: [9, 10] },
     { guid: 5, name: "video", parent: 1, children: [] },
     { guid: 6, name: "Anna_und_die_Liebe", parent: 2, children: [] },
     { guid: 7, name: "Die_Harald_Schmidt_Show", parent: 2, children: [] },
     { guid: 8, name: "Sat.1_Nachrichten", parent: 2, children: [] },
+    { guid: 9, name: "Kontakt", parent: 4, children: [] },
+    { guid: 10, name: "Impressum", parent: 4, children: [] },
 ];
+
+function buildTree(id) {
+    var ret;
+    fixtures.forEach(function(page) {
+        if(id == page.guid) {
+            ret = new Page(page.name);
+            page.children.forEach(function(childId) {
+                ret.addChild(buildTree(childId));
+            });
+        }
+    });
+    return ret;
+}
+
+var root = buildTree(1);
 
 var tree = {
 	name: 'Root',
@@ -163,8 +180,6 @@ function readStructure(struc) {
 	});
 	return page;
 }
-
-var root = readStructure(tree);
 
 var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');
@@ -211,7 +226,7 @@ http.createServer(function (req, res) {
     } else if(req.url.startsWith('/services/page/')) {
         if(req.url.startsWith('/services/page/list')) {
             res.writeHead(200, {'Content-Type': 'application/json'});
-            res.end(JSON.stringify(fixtures));
+            res.end(JSON.stringify({content: fixtures}));
         } else if(req.url.startsWith('/services/page/id/')) {
             var id = req.url.substr('/services/page/id/'.length);
             var page = null;

@@ -17,6 +17,17 @@ FirstnodeClient.mainPage = SC.Page.design({
           childViews: 'workspaceView'.w(),
           
           workspaceView: SC.WorkspaceView.design({
+              
+              topToolbar: SC.ToolbarView.design({
+                  
+                  childViews: [SC.LabelView.design({
+                      layout: { top: 12, left: 12 },
+                      tagName: 'h1',
+                      textAlign: SC.ALIGN_LEFT,
+                      value: "firstnode"
+                  })]
+              }),
+              
               contentView: SC.SplitView.design({
                   dividerThickness: 3,
                   defaultThickness: 300,
@@ -40,7 +51,7 @@ FirstnodeClient.mainPage = SC.Page.design({
                           isVisibleBinding: SC.Binding.not('FirstnodeClient.treeController.hasSelection'),
                        
                           childViews: [SC.LabelView.design({
-                              layout: { width: 300, height: 22, centerX: 0, centerY: 0 },
+                              layout: { width: 300, height: 48, centerX: 0, centerY: 0 },
                               tagName: 'h1',
                               textAlign: SC.ALIGN_CENTER,
                               value: "Select a page"
@@ -49,23 +60,53 @@ FirstnodeClient.mainPage = SC.Page.design({
                       
                       contactDetails: SC.View.design({
                           layout: { top: 50, left: 50, bottom: 50, right: 50 },
-                          childViews: 'idLabel titleLabel expandedLabel'.w(),
+                          childViews: 'menuButtons viewDetails editDetails'.w(),
                           isVisibleBinding: SC.Binding.bool('FirstnodeClient.treeController.hasSelection'),
                           
-                          idLabel: SC.LabelView.design({
-                              layout: { width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.id')
+                          menuButtons: SC.SegmentedView.design({
+                              align: SC.ALIGN_LEFT,
+                              items: [ 
+                                      {title:'Edit', action:'onEditPage', target:'FirstnodeClient.pageController', isEnabled: true}, 
+                                      {title:'Save', action:'onSavePage', target:'FirstnodeClient.pageController', isEnabled: true},
+                                      {title:'Publish', action:'onPublishPage', target:'FirstnodeClient.pageController', isEnabled: true},
+                                      {title:'Cancel', action:'onCancelPage', target:'FirstnodeClient.pageController', isEnabled: true},
+                              ],
+                              itemTitleKey:'title', 
+                              itemActionKey:'action', 
+                              itemTargetKey:'target',
+                              itemIsEnabledKey: 'isEnabled'
                           }),
                           
-                          titleLabel: SC.LabelView.design({
-                              layout: { top: 40, width: 500, height: 18 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.title')
+                          viewDetails: SC.View.design({
+                              childViews: 'idLabel titleLabel'.w(),
+                              isVisibleBinding: SC.Binding.not('FirstnodeClient.pageController.inEditingMode'),
+                              
+                              idLabel: SC.LabelView.design({
+                                  layout: { top: 40, width: 500, height: 18 },
+                                  valueBinding: SC.Binding.oneWay('FirstnodeClient.pageController.id')
+                              }),
+                              
+                              titleLabel: SC.LabelView.design({
+                                  layout: { top: 80, width: 500, height: 18 },
+                                  valueBinding: SC.Binding.oneWay('FirstnodeClient.pageController.name')
+                              })
+                             
                           }),
-                         
-                          expandedLabel: SC.LabelView.design({
-                              layout: { top: 80, width: 500, height: 500 },
-                              valueBinding: SC.Binding.oneWay('FirstnodeClient.treeSelectionController.treeItemIsExpanded')
-                          })
+                          
+                          editDetails: SC.View.design({
+                              childViews: 'idLabel titleField'.w(),
+                              isVisibleBinding: SC.Binding.bool('FirstnodeClient.pageController.inEditingMode'),
+                              
+                              idLabel: SC.LabelView.design({
+                                  layout: { top: 40, width: 500, height: 18 },
+                                  valueBinding: SC.Binding.oneWay('FirstnodeClient.pageController.id')
+                              }),
+
+                              titleField: SC.TextFieldView.design({
+                                  layout: { top: 80, width: 500, height: 18 },
+                                  valueBinding: 'FirstnodeClient.pageController.name'
+                              })
+                          })                          
                       })
                   })
               })

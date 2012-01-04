@@ -57,29 +57,44 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
         }
     },
 
+    createRecord: function(store, storeKey) {  
+        // TODO: Add handlers to submit new records to the data source.
+        // call store.dataSourceDidComplete(storeKey) when done.
+        console.log('createRecord: ' + store.idFor(storeKey));
+        return NO ; // return YES if you handled the storeKey
+    },
   
-  createRecord: function(store, storeKey) {
+    updateRecord: function(store, storeKey) {
+        // TODO: Add handlers to submit modified record to the data source
+        // call store.dataSourceDidComplete(storeKey) when done.
+        console.log('updateRecord: ' + store.idFor(storeKey));
+        if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
+            SC.Request
+                .putUrl('/services/page/id/' + store.idFor(storeKey))
+                .header({'Accept': 'application/json'})
+                .json()
+                .notify(this, this.didUpdateRecord, store, storeKey)
+                .send(store.readDataHash(storeKey));
+            return YES;
+        } else {
+            return NO ;
+        }
+    },
     
-    // TODO: Add handlers to submit new records to the data source.
-    // call store.dataSourceDidComplete(storeKey) when done.
-    
-    return NO ; // return YES if you handled the storeKey
-  },
+    didUpdateRecord: function(response, store, storeKey) {
+        if (SC.ok(response)) {
+          var data = response.get('body');
+          if (data) data = data.content; // if hash is returned; use it.
+          store.dataSourceDidComplete(storeKey, data) ;
+        } else {
+            store.dataSourceDidError(storeKey);
+        }
+    },
   
-  updateRecord: function(store, storeKey) {
-    
-    // TODO: Add handlers to submit modified record to the data source
-    // call store.dataSourceDidComplete(storeKey) when done.
-
-    return NO ; // return YES if you handled the storeKey
-  },
-  
-  destroyRecord: function(store, storeKey) {
-    
-    // TODO: Add handlers to destroy records on the data source.
-    // call store.dataSourceDidDestroy(storeKey) when done
-    
-    return NO ; // return YES if you handled the storeKey
-  }
-  
+    destroyRecord: function(store, storeKey) {
+        // TODO: Add handlers to destroy records on the data source.
+        // call store.dataSourceDidDestroy(storeKey) when done
+        console.log('destroyRecord: ' + store.idFor(storeKey));
+        return NO ; // return YES if you handled the storeKey
+    }
 }) ;

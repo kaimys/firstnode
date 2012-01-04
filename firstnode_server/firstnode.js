@@ -143,6 +143,8 @@ var fixtures = [
     { guid: 10, name: "Impressum", parent: 4, children: [] },
 ];
 
+var pages = {};
+
 function buildTree(id) {
     var ret;
     fixtures.forEach(function(page) {
@@ -151,35 +153,13 @@ function buildTree(id) {
             page.children.forEach(function(childId) {
                 ret.addChild(buildTree(childId));
             });
+            pages[page.guid] = ret;
         }
     });
     return ret;
 }
 
 var root = buildTree(1);
-
-var tree = {
-	name: 'Root',
-	children: [{
-    	name: 'tv',
-    	children: [
-    	    { name: 'Anna_und_die_Liebe', children: [] },
-		    { name: 'Die_Harald_Schmidt_Show', children: [] }, 
-		    { name: 'Sat.1_Nachrichten', children: [] }
-		]},
-	    { name: 'personen', children: [] },
-	    { name: 'service', children: [] },
-	    { name: 'video', children: [] }
-    ]
-};
-
-function readStructure(struc) {
-	var page = new Page(struc.name);
-	struc.children.forEach(function(child) {
-		page.addChild(readStructure(child));
-	});
-	return page;
-}
 
 var renderer = new Renderer('pageLayout.ejs');
 renderer.addTemplate('Page.ejs', Page, 'page');
@@ -230,16 +210,41 @@ http.createServer(function (req, res) {
         } else if(req.url.startsWith('/services/page/id/')) {
             var id = req.url.substr('/services/page/id/'.length);
             var page = null;
-            fixtures.forEach(function (fix) {
-                if(fix.guid == id)
-                    page = fix;
-            });
-            if(page != null) {
-                res.writeHead(200, {'Content-Type': 'application/json'});
-                res.end(JSON.stringify({content: page}));
-            } else {
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end('Not found\n');
+            if(req.method == 'GET') {
+                fixtures.forEach(function (fix) {
+                    if(fix.guid == id)
+                        page = fix;
+                });
+                if(page != null) {
+                    res.writeHead(200, {'Content-Type': 'application/json'});
+                    res.end(JSON.stringify({content: page}));
+                } else {
+                    res.writeHead(404, {'Content-Type': 'text/plain'});
+                    res.end('Not found\n');
+                }
+            } else if(req.method == 'PUT') {
+                var body = '';
+                req.on('data', function(chunk) {
+                    // append the current chunk of data to the body variable
+                    body += chunk.toString();
+                });
+                req.on('end', function() {
+                    console.log(body);
+                    var updatedPage = JSON.parse(body);
+                    pages[id].name = updatedPage.name;
+                    fixtures.forEach(function (fix) {
+                        if(fix.guid == id)
+                            page = fix;
+                    });
+                    if(page != null) {
+                        page.name = updatedPage.name;
+                        res.writeHead(200, {'Content-Type': 'application/json'});
+                        res.end(JSON.stringify({content: page}));
+                    } else {
+                        res.writeHead(404, {'Content-Type': 'text/plain'});
+                        res.end('Not found\n');
+                    }
+                });
             }
         }
         console.log(req.method + ' - ' + req.url + ' - ' + res.statusCode);

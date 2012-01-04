@@ -8,3 +8,10 @@
     line-height: 20px !important;
     color: #999;
 }
+
+.toolbar h1 {
+    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", inherit;
+    font-size: 28px !important;
+    line-height: 20px !important;
+    color: #333;
+}

@@ -21,9 +21,8 @@ FirstnodeClient = SC.Application.create(
   // connect to a backend server.  The default setup below connects the store
   // to any fixtures you define.
   //store: SC.Store.create().from(SC.Record.fixtures),
-  store: SC.Store .create({commitRecordsAutomatically: YES}).from('FirstnodeClient.PageDataSource'),
+  store: SC.Store .create({}).from('FirstnodeClient.PageDataSource') // commitRecordsAutomatically: YES
   
   // TODO: Add global constants or singleton objects needed by your app here.
   
-
 }) ;

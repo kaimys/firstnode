@@ -21,7 +21,7 @@ FirstnodeClient.TreeItem = SC.Object.extend({
             items.push(item);
         });
         return items;
-    }.property(),
+    }.property()
     
 });
 
@@ -34,11 +34,18 @@ FirstnodeClient.treeController = SC.TreeController.create(
         var root = FirstnodeClient.store.find(FirstnodeClient.Page, 1);
         var rootNode = FirstnodeClient.TreeItem.create({
             page: root,
-            treeItemIsExpanded: YES,
+            treeItemIsExpanded: YES
         });
         
         this.set('content', rootNode);
     },
+
+    selectionObserver: function() {
+        if(this.hasSelection()) {
+            console.log('selectionObserver: Page ' + this.selection().firstObject().get('title') + ' selected');
+            FirstnodeClient.pageController.set('content', this.selection().firstObject());
+        }
+    }.observes("selection")
 
 }) ;
 

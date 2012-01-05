@@ -168,7 +168,7 @@ renderer.addTemplate('PageListItem.ejs', Page, 'list-item');
 /* Start publish server */
 
 http.createServer(function (req, res) {
-    var path = req.url.split('/');
+    var path = decodeURI(req.url).split('/');
     path.shift();
     var page = root;
     path.forEach(function(pathElement) {

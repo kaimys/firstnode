@@ -4,10 +4,9 @@
 
 var http = require('http');
 var url = require('url');
-var fs = require('fs');
 var util = require('util');
-var ejs = require('ejs');
 var paperboy = require('./paperboy');
+var cobj = require('./contentobjects');
 
 String.prototype.startsWith = function(str) {
     return this.substring(0, str.length) == str;
@@ -15,117 +14,6 @@ String.prototype.startsWith = function(str) {
 
 String.prototype.endsWith = function(str) {
     return this.substring(this.length - str.length) == str;
-};
-
-/**
- * MimeMap Class
- */
-
-function MimeMap() {
-    this.map = {
-        'txt': 'text/plain',
-        'html': 'text/html',
-        'css': 'text/css'
-    };
-}
-
-MimeMap.prototype.lookup = function(filename) {
-    var ext = filename.substring(filename.lastIndexOf('.') + 1);
-    var mime = this.map[ext];
-    if(mime === null)
-        mime = 'application/octet-stream';
-    return mime;
-};
-
-var mimeMap = new MimeMap();
-
-/**
- * Page Class
- */
-
-function Page(name) {
-    console.log('new Page(' + name + ')');
-    this.name = name;
-    this.children = [];
-    this.parent = null;
-}
-
-Page.prototype.addChild = function(child) {
-    if(!(child instanceof Page))
-        throw new Error("Not a page!");
-    if(this.containsChild(child.name)) 
-        throw Error("Page already contains a object of that name!");
-    this.children.push(child);
-    child.parent = this;
-    return this;
-};
-
-Page.prototype.getChild = function(name) {
-    for(var i = 0; i < this.children.length; i++) {
-        if(this.children[i].name == name)
-            return this.children[i];
-    }
-    return null;
-};
-
-Page.prototype.containsChild = function(name) {
-    return this.getChild(name) != null;
-};
-
-/**
- * Renderer Class
- */
-
-function Renderer(pageLayout) {
-    console.log('new Renderer()');
-    this.templates = [];
-    this.pageLayoutFile = this.loadTemplate(pageLayout);
-    this.pageLayout = pageLayout;
-}
-
-Renderer.prototype.loadTemplate = function(template) {
-    return fs.readFileSync(__dirname + '/htdocs/templates/' + template, 'utf8');
-};
-
-
-Renderer.prototype.addTemplate = function(template, constructor, context) {
-    this.templates.unshift({
-        'templateFile': this.loadTemplate(template),
-        'template'    : template,
-        'constructor' : constructor,
-        'context'     : context
-    });
-};
-
-Renderer.prototype.render = function(req, res, obj, context) {
-    console.log('render(req, res, ' + obj.name + ', ' + context + ')');
-    for(var i = 0; i < this.templates.length; i++) {
-        var tpl = this.templates[i];
-        if(obj instanceof tpl.constructor && context == tpl.context) {
-            return ejs.render(tpl.templateFile, {
-                'cache'     : true,
-                'filename'  : tpl.template,
-                'req'       : req,
-                'res'       : res,
-                'obj'       : obj,
-                'context'   : context,
-                'renderer'  : this
-            });
-        }
-    }
-};
-
-Renderer.prototype.renderPage = function(req, res, obj) {
-    console.log('renderPage(req, res, ' + obj.name + ')');
-    res.writeHead(200, {'Content-Type': 'text/html'});
-    res.end(ejs.render(this.pageLayoutFile, {
-        'cache'   : true,
-        'filename': this.pageLayout,
-        'req'     : req,
-        'res'     : res,
-        'obj'     : obj,
-        'renderer': this
-    }));
 };
 
 /* Application setup */
@@ -149,7 +37,7 @@ function buildTree(id) {
     var ret;
     fixtures.forEach(function(page) {
         if(id == page.guid) {
-            ret = new Page(page.name);
+            ret = cobj.create(page.name);
             page.children.forEach(function(childId) {
                 ret.addChild(buildTree(childId));
             });
@@ -161,9 +49,9 @@ function buildTree(id) {
 
 var root = buildTree(1);
 
-var renderer = new Renderer('pageLayout.ejs');
-renderer.addTemplate('Page.ejs', Page, 'page');
-renderer.addTemplate('PageListItem.ejs', Page, 'list-item');
+var renderer = require('./renderer').create('pageLayout.ejs');
+renderer.addTemplate('Page.ejs', cobj.Page, 'page');
+renderer.addTemplate('PageListItem.ejs', cobj.Page, 'list-item');
 
 /* Start publish server */
 

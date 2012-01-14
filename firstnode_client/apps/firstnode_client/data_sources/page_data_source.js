@@ -17,7 +17,7 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
 
     fetch: function(store, query) {
         SC.Request
-            .getUrl('/services/page/list')
+            .getUrl('/services/content/index')
             .header({'Accept': 'application/json'})
             .json()
             .notify(this, 'didFetchPages', store, query)
@@ -40,7 +40,7 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
   
     retrieveRecord: function(store, storeKey) {
         SC.Request
-            .getUrl('/services/page/id/' + store.idFor(storeKey))
+            .getUrl('/services/content/id/' + store.idFor(storeKey))
             .header({'Accept': 'application/json'})
             .json()
             .notify(this, 'didRetrieveRecord', store, storeKey)
@@ -70,7 +70,7 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
         console.log('updateRecord: ' + store.idFor(storeKey));
         if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
             SC.Request
-                .putUrl('/services/page/id/' + store.idFor(storeKey))
+                .putUrl('/services/content/id/' + store.idFor(storeKey))
                 .header({'Accept': 'application/json'})
                 .json()
                 .notify(this, this.didUpdateRecord, store, storeKey)

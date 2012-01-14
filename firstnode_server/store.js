@@ -1,23 +1,35 @@
 var cobj = require('./contentobjects');
 
-exports.readFixtures = function(fixtures, startId) {
-    root = buildTree(fixtures, startId);
+exports.getRoot = function () {
+    return root;
 };
 
 exports.getObject = function (id) {
     return pages[id];
 };
 
-exports.getRoot = function () {
-    return root;
+exports.getObjectByPath = function (path) {
+    var pathArray = decodeURI(path).split('/');
+    pathArray.shift();
+    var page = root;
+    pathArray.forEach(function (pathElement) {
+        if(page != null && pathElement != '') {
+            page = page.getChild(pathElement);
+        }
+    });
+    return page;
 };
 
-exports.getArray = function () {
+exports.query = function (query) {
     var arr = [];
     for(var id in pages) {
         arr.push(pages[id].toArray());
     }
     return arr;
+};
+
+exports.readFixtures = function (fixtures, startId) {
+    root = buildTree(fixtures, startId);
 };
 
 var pages = {};

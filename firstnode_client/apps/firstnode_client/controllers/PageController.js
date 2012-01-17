@@ -21,6 +21,14 @@ FirstnodeClient.pageController = SC.ObjectController.create({
     onCancelPage: function() {
         console.log('onCancelPage ' + this.get('id'));
         this.set('inEditingMode', false);
+    },
+    
+    onDeletePage: function() {
+        console.log('onDeletePage ' + this.get('id'));
+        this.set('inEditingMode', false);
+        this.get('content').set('parent', null);
+        this.get('content').destroy();
+        FirstnodeClient.store.commitRecord(FirstnodeClient.Page, this.get('id'));
     }
     
     

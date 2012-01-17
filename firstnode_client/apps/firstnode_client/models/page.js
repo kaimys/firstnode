@@ -20,5 +20,5 @@ FirstnodeClient.Page = SC.Record.extend({
     
     treeItemChildren: function(){
         return this.get("children");
-    }.property(),
+    }.property()
 });

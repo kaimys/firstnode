@@ -24,16 +24,32 @@ Page.prototype.addChild = function(child) {
 
 //TODO Add index for faster lookup
 
-Page.prototype.getChild = function(name) {
+Page.prototype.getChild = function(nameOrId) {
     for(var i = 0; i < this.children.length; i++) {
-        if(this.children[i].name == name)
+        if(typeof nameOrId === 'string' && this.children[i].name == nameOrId ||
+                typeof nameOrId === 'number' && this.children[i].guid == nameOrId) {
             return this.children[i];
+        }
     }
     return null;
 };
 
-Page.prototype.containsChild = function(name) {
-    return this.getChild(name) != null;
+Page.prototype.removeChild = function(nameOrId) {
+    for(var i = 0; i < this.children.length; i++) {
+        if(typeof nameOrId === 'string' && this.children[i].name == nameOrId || 
+                typeof nameOrId === 'number' && this.children[i].guid === nameOrId) {
+            return this.children.splice(i, 1);
+        }
+    }
+    return null;
+};
+
+Page.prototype.containsChild = function(nameOrId) {
+    return this.getChild(nameOrId) != null;
+};
+
+Page.prototype.hasParent = function() {
+    return this.parent != null;
 };
 
 Page.prototype.toArray = function() {

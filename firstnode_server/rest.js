@@ -31,7 +31,7 @@ RestService.prototype.handleRequest = function(req, res) {
             if(path.startsWith('id/')) {
                 var id = path.substr('id/'.length);
                 if(req.method == 'DELETE') {
-                    this.del(id, req);
+                    this.remove(id, res);
                 } else {
                     var body = '';
                     req.on('data', function(chunk) {
@@ -64,6 +64,11 @@ RestService.prototype.handleRequest = function(req, res) {
     return false;
 };
 
+RestService.prototype.fileNotFound = function(res) {
+    res.writeHead(404, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify({error: 'Not found', content: null}));
+};
+
 RestService.prototype.index = function(query, res) {
     res.writeHead(501, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({error: 'Method not implemented', content: null}));
@@ -74,7 +79,7 @@ RestService.prototype.get = function(id, res) {
     res.end(JSON.stringify({error: 'Method not implemented', content: null}));
 };
 
-RestService.prototype.del = function(id, res) {
+RestService.prototype.remove = function(id, res) {
     res.writeHead(501, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({error: 'Method not implemented', content: null}));
 };

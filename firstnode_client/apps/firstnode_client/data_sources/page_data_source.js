@@ -95,6 +95,27 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
         // TODO: Add handlers to destroy records on the data source.
         // call store.dataSourceDidDestroy(storeKey) when done
         console.log('destroyRecord: ' + store.idFor(storeKey));
-        return NO ; // return YES if you handled the storeKey
+        if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
+            SC.Request
+                .deleteUrl('/services/content/id/' + store.idFor(storeKey))
+                .header({'Accept': 'application/json'})
+                .json()
+                .notify(this, this.didDestroyRecord, store, storeKey)
+                .send();
+            return YES;
+        } else {
+            return NO ;
+        }
+    },
+    
+    didDestroyRecord: function(response, store, storeKey) {
+        if (SC.ok(response)) {
+            store.dataSourceDidDestroy(storeKey);
+            var data = response.get('body');
+            if (data) data = data.content; // if hash is returned; use it.
+        } else {
+            store.dataSourceDidError(storeKey);
+        }
     }
+
 }) ;

@@ -28,6 +28,10 @@ exports.query = function (query) {
     return arr;
 };
 
+exports.remove = function (id) {
+    return remove(id);
+};
+
 exports.readFixtures = function (fixtures, startId) {
     root = buildTree(fixtures, startId);
 };
@@ -40,11 +44,28 @@ function buildTree(fixtures, id) {
     fixtures.forEach(function(page) {
         if(id == page.guid) {
             ret = new cobj.Page(page.guid, page.name);
-            page.children.forEach(function(childId) {
-                ret.addChild(buildTree(fixtures, childId));
+            fixtures.forEach(function(child) {
+                if(child.parent == ret.guid)
+                    ret.addChild(buildTree(fixtures, child.guid));
             });
             pages[page.guid] = ret;
         }
     });
     return ret;
+}
+
+function remove(id) {
+    if(id in pages) {
+        var page = pages[id];
+        page.children.forEach(function (child) {
+            remove(child.guid);
+        });
+        if(page.hasParent()) {
+            var removed = page.parent.removeChild(id);
+        }
+        delete pages[id];
+        return page;
+    } else {
+        return null;
+    }
 }

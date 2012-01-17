@@ -24,16 +24,16 @@ function logRequest(req, res) {
 /* Application setup */
 
 store.readFixtures([
-    { guid: 1, name: "Root", parent: 0, children: [2, 3, 4, 5] },
-    { guid: 2, name: "tv", parent: 1, children: [6, 7, 8] },
-    { guid: 3, name: "personen", parent: 1, children: [] },
-    { guid: 4, name: "service", parent: 1, children: [9, 10] },
-    { guid: 5, name: "video", parent: 1, children: [] },
-    { guid: 6, name: "Anna_und_die_Liebe", parent: 2, children: [] },
-    { guid: 7, name: "Die_Harald_Schmidt_Show", parent: 2, children: [] },
-    { guid: 8, name: "Sat.1_Nachrichten", parent: 2, children: [] },
-    { guid: 9, name: "Kontakt", parent: 4, children: [] },
-    { guid: 10, name: "Impressum", parent: 4, children: [] },
+    { guid: 1, name: "Root", parent: 0},
+    { guid: 2, name: "tv", parent: 1},
+    { guid: 3, name: "personen", parent: 1},
+    { guid: 4, name: "service", parent: 1},
+    { guid: 5, name: "video", parent: 1},
+    { guid: 6, name: "Anna_und_die_Liebe", parent: 2},
+    { guid: 7, name: "Die_Harald_Schmidt_Show", parent: 2},
+    { guid: 8, name: "Sat.1_Nachrichten", parent: 2},
+    { guid: 9, name: "Kontakt", parent: 4},
+    { guid: 10, name: "Impressum", parent: 4},
 ], 1);
 
 var renderer = require('./renderer').create('pageLayout.ejs');
@@ -72,7 +72,11 @@ contentService.index = function(query, res) {
 };
 
 contentService.get = function(id, res) {
-    var page = store.getObject(id);
+    var page = store.getObject(parseInt(id));
+    if(page === null) {
+        this.fileNotFound(res);
+        return;
+    }
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({content: page.toArray()}));
     console.log(JSON.stringify(page.toArray()));
@@ -80,7 +84,22 @@ contentService.get = function(id, res) {
 
 contentService.put = function(obj, res) {
     var page = store.getObject(obj.guid);
+    if(page === null) {
+        this.fileNotFound(res);
+        return;
+    }
     page.name = obj.name;
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify({content: page.toArray()}));
+    console.log(JSON.stringify(page.toArray()));
+};
+
+contentService.remove = function(id, res) {
+    var page = store.remove(parseInt(id));
+    if(page === null) {
+        this.fileNotFound(res);
+        return;
+    }
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({content: page.toArray()}));
     console.log(JSON.stringify(page.toArray()));

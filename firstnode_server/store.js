@@ -32,12 +32,35 @@ exports.remove = function (id) {
     return remove(id);
 };
 
+exports.createObject = function (obj) {
+    var newObj = new cobj.Page(nextGuid++, obj.name);
+    if(obj.parent != null) {
+        newObj.parent = pages[obj.parent];
+        newObj.parent.addChild(newObj);
+    }
+    pages[newObj.guid] = newObj;
+    return newObj;
+};
+
+exports.updateObject = function (hash) {
+    var page = pages[hash.guid];
+    page.name = hash.name;
+    if(hash.parent != null) {
+        page.parent = pages[hash.parent];
+        if(!page.parent.containsChild(page.name)) {
+            page.parent.addChild(page);
+        }
+    }
+    return page;
+};
+
 exports.readFixtures = function (fixtures, startId) {
     root = buildTree(fixtures, startId);
 };
 
 var pages = {};
 var root = null;
+var nextGuid = 1;
 
 function buildTree(fixtures, id) {
     var ret;
@@ -49,6 +72,8 @@ function buildTree(fixtures, id) {
                     ret.addChild(buildTree(fixtures, child.guid));
             });
             pages[page.guid] = ret;
+            if(page.guid >= nextGuid)
+                nextGuid = page.guid + 1;
         }
     });
     return ret;

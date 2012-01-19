@@ -70,6 +70,7 @@ FirstnodeClient.mainPage = SC.Page.design({
                                       {title:'Save', action:'onSavePage', target:'FirstnodeClient.pageController', isEnabled: true},
                                       {title:'Publish', action:'onPublishPage', target:'FirstnodeClient.pageController', isEnabled: true},
                                       {title:'Delete', action:'onDeletePage', target:'FirstnodeClient.pageController', isEnabled: true},
+                                      {title:'Add child', action:'onAddChild', target:'FirstnodeClient.pageController', isEnabled: true},
                                       {title:'Cancel', action:'onCancelPage', target:'FirstnodeClient.pageController', isEnabled: true},
                               ],
                               itemTitleKey:'title', 

@@ -29,7 +29,16 @@ FirstnodeClient.pageController = SC.ObjectController.create({
         this.get('content').set('parent', null);
         this.get('content').destroy();
         FirstnodeClient.store.commitRecord(FirstnodeClient.Page, this.get('id'));
-    }
+    },
     
+    onAddChild: function() {
+        console.log('onAddChild ' + this.get('id'));
+        var newPage = FirstnodeClient.store.createRecord( FirstnodeClient.Page, { name: 'New page' });
+        FirstnodeClient.store.commitRecord(FirstnodeClient.Page, undefined, newPage.storeKey, undefined, function() {
+            newPage.set('parent', FirstnodeClient.pageController.get('content'));
+            FirstnodeClient.treeController.selectObject(newPage);
+            FirstnodeClient.pageController.set('inEditingMode', true);            
+        });
+    }
     
 });

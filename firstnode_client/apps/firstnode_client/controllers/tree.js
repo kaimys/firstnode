@@ -1,3 +1,4 @@
+// TODO FirstnodeClient.TreeItem is currently not used
 FirstnodeClient.TreeItem = SC.Object.extend({
     
     page: null,
@@ -29,16 +30,6 @@ FirstnodeClient.treeController = SC.TreeController.create(
 /** @scope FirstnodeClient.treeController.prototype */ {
   
     content: null,
-    
-    populate: function() {
-        var root = FirstnodeClient.store.find(FirstnodeClient.Page, 1);
-        var rootNode = FirstnodeClient.TreeItem.create({
-            page: root,
-            treeItemIsExpanded: YES
-        });
-        
-        this.set('content', rootNode);
-    },
 
     selectionObserver: function() {
         if(this.hasSelection()) {

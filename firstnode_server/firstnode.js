@@ -73,7 +73,7 @@ contentService.index = function(query, res) {
 
 contentService.get = function(id, res) {
     var page = store.getObject(parseInt(id));
-    if(page === null) {
+    if(page === undefined) {
         this.fileNotFound(res);
         return;
     }
@@ -84,19 +84,26 @@ contentService.get = function(id, res) {
 
 contentService.put = function(obj, res) {
     var page = store.getObject(obj.guid);
-    if(page === null) {
+    console.log(page);
+    if(page === undefined) {
         this.fileNotFound(res);
         return;
     }
-    page.name = obj.name;
+    page = store.updateObject(obj);
     res.writeHead(200, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({content: page.toArray()}));
     console.log(JSON.stringify(page.toArray()));
 };
 
+contentService.post = function(obj, res) {
+    updatedObj = store.createObject(obj);
+    res.end(JSON.stringify({content: updatedObj.toArray()}));
+    console.log(JSON.stringify(updatedObj.toArray()));
+};
+
 contentService.remove = function(id, res) {
     var page = store.remove(parseInt(id));
-    if(page === null) {
+    if(page === undefined) {
         this.fileNotFound(res);
         return;
     }

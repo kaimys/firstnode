@@ -24,8 +24,7 @@ RestService.prototype.handleRequest = function(req, res) {
                 var id = path.substr('id/'.length);
                 this.get(id, res);
             } else {
-                res.writeHead(404, {'Content-Type': 'application/json'});
-                res.end(JSON.stringify({error: 'Not found', content: null}));
+                this.fileNotFound(res);
             }
         } else if(req.method == 'PUT' || req.method == 'DELETE') {
             if(path.startsWith('id/')) {
@@ -50,11 +49,23 @@ RestService.prototype.handleRequest = function(req, res) {
                     });
                 }
             } else {
-                res.writeHead(404, {'Content-Type': 'application/json'});
-                res.end(JSON.stringify({error: 'Not found', content: null}));
+                this.fileNotFound(res);
             }
         } else if(req.method == 'POST') {
-            this.post(req, res);
+            if(path == '') {
+                var body = '';
+                req.on('data', function(chunk) {
+                    // append the current chunk of data to the body variable
+                    body += chunk.toString();
+                });
+                req.on('end', function() {
+                    console.log(body);
+                    var obj = JSON.parse(body);
+                    self.post(obj, res);
+                });                
+            } else {
+                this.fileNotFound(res);
+            }
         } else {
             res.writeHead(405, {'Content-Type': 'application/json'});
             res.end(JSON.stringify({error: 'Method not allowed', content: null}));
@@ -84,7 +95,7 @@ RestService.prototype.remove = function(id, res) {
     res.end(JSON.stringify({error: 'Method not implemented', content: null}));
 };
 
-RestService.prototype.post = function(req, res) {
+RestService.prototype.post = function(obj, res) {
     res.writeHead(501, {'Content-Type': 'application/json'});
     res.end(JSON.stringify({error: 'Method not implemented', content: null}));
 };

@@ -58,15 +58,31 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
     },
 
     createRecord: function(store, storeKey) {  
-        // TODO: Add handlers to submit new records to the data source.
-        // call store.dataSourceDidComplete(storeKey) when done.
         console.log('createRecord: ' + store.idFor(storeKey));
-        return NO ; // return YES if you handled the storeKey
+        if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
+            SC.Request
+                .postUrl('/services/content/')
+                .header({'Accept': 'application/json'})
+                .json()
+                .notify(this, this.didCreateRecord, store, storeKey)
+                .send(store.readDataHash(storeKey));
+            return YES;
+        } else {
+            return NO;
+        }
+    },
+    
+    didCreateRecord: function(response, store, storeKey) {
+        console.log('didCreateRecord: ' + store.idFor(storeKey));
+        if (SC.ok(response)) {
+            var dataHash = response.get('body').content;
+            store.dataSourceDidComplete(storeKey, dataHash, dataHash.guid);
+        } else {
+            store.dataSourceDidError(storeKey, response);
+        }
     },
   
     updateRecord: function(store, storeKey) {
-        // TODO: Add handlers to submit modified record to the data source
-        // call store.dataSourceDidComplete(storeKey) when done.
         console.log('updateRecord: ' + store.idFor(storeKey));
         if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
             SC.Request
@@ -92,8 +108,6 @@ FirstnodeClient.PageDataSource = SC.DataSource.extend(
     },
   
     destroyRecord: function(store, storeKey) {
-        // TODO: Add handlers to destroy records on the data source.
-        // call store.dataSourceDidDestroy(storeKey) when done
         console.log('destroyRecord: ' + store.idFor(storeKey));
         if (SC.kindOf(store.recordTypeFor(storeKey), FirstnodeClient.Page)) {
             SC.Request
